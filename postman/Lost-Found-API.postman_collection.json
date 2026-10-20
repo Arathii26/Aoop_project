@@ -1,0 +1,68 @@
+{
+  "info": {
+    "name": "Lost & Found API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Demo Postman requests for the Lost & Found Management System"
+  },
+  "item": [
+    {
+      "name": "Report lost item",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reporterId\": 1,\n  \"reporterName\": \"Student A\",\n  \"reporterEmail\": \"studenta@college.edu\",\n  \"regNo\": \"2021CS001\",\n  \"name\": \"Calculator\",\n  \"description\": \"Black scientific calculator\",\n  \"category\": \"CALCULATOR\",\n  \"location\": \"Block A\",\n  \"dateTime\": \"2026-01-02T14:00:00\"\n}"
+        },
+        "url": { "raw": "http://localhost:8080/lost", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["lost"] }
+      }
+    },
+    {
+      "name": "Report found item",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reporterId\": 2,\n  \"reporterName\": \"Student B\",\n  \"reporterEmail\": \"studentb@college.edu\",\n  \"regNo\": \"2021CS002\",\n  \"name\": \"Calculator\",\n  \"description\": \"Black scientific calculator found near lab\",\n  \"category\": \"CALCULATOR\",\n  \"location\": \"Block A\",\n  \"dateTime\": \"2026-01-02T15:00:00\"\n}"
+        },
+        "url": { "raw": "http://localhost:8080/found", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["found"] }
+      }
+    },
+    {
+      "name": "Get matches",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/matches/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["matches", "1"] }
+      }
+    },
+    {
+      "name": "Create claim",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"lostItemId\": 1,\n  \"foundItemId\": 2,\n  \"claimantId\": 1,\n  \"claimantName\": \"Student A\",\n  \"claimantEmail\": \"studenta@college.edu\",\n  \"regNo\": \"2021CS001\",\n  \"remarks\": \"This is my calculator.\"\n}"
+        },
+        "url": { "raw": "http://localhost:8080/claims", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["claims"] }
+      }
+    },
+    {
+      "name": "Approve claim",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Admin-Id", "value": "ADM001" }],
+        "url": { "raw": "http://localhost:8080/claims/1/approve", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["claims", "1", "approve"] }
+      }
+    },
+    {
+      "name": "Reject claim",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Admin-Id", "value": "ADM001" }],
+        "url": { "raw": "http://localhost:8080/claims/1/reject", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["claims", "1", "reject"] }
+      }
+    }
+  ]
+}

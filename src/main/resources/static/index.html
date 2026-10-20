@@ -1,0 +1,217 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost and Found Management</title>
+</head>
+<body>
+
+    <h1>Lost and Found Management System</h1>
+    <p>Report lost items, report found items, and search for matches.</p>
+
+    <hr>
+
+    <h2>Report Lost Item</h2>
+
+    <form id="lostForm">
+        <label>Reporter ID:</label>
+        <input type="number" id="lostReporterId" value="1" required><br><br>
+
+        <label>Reporter Name:</label>
+        <input type="text" id="lostReporterName" value="Asha" required><br><br>
+
+        <label>Reporter Email:</label>
+        <input type="email" id="lostReporterEmail" value="asha@example.com" required><br><br>
+
+        <label>Registration Number:</label>
+        <input type="text" id="lostRegNo" value="R1" required><br><br>
+
+        <label>Item Name:</label>
+        <input type="text" id="lostName" required><br><br>
+
+        <label>Description:</label>
+        <input type="text" id="lostDescription"><br><br>
+
+        <label>Category:</label>
+        <select id="lostCategory" required>
+            <option value="OTHER">OTHER</option>
+            <option value="BOOK">BOOK</option>
+            <option value="ELECTRONICS">ELECTRONICS</option>
+            <option value="CALCULATOR">CALCULATOR</option>
+            <option value="ID_CARD">ID_CARD</option>
+            <option value="BAG">BAG</option>
+        </select><br><br>
+
+        <label>Location:</label>
+        <input type="text" id="lostLocation" required><br><br>
+
+        <label>Date and Time:</label>
+        <input type="datetime-local" id="lostDateTime" required><br><br>
+
+        <button type="submit">Report Lost Item</button>
+    </form>
+
+    <p id="lostResult"></p>
+
+    <hr>
+
+    <h2>Report Found Item</h2>
+
+    <form id="foundForm">
+        <label>Reporter ID:</label>
+        <input type="number" id="foundReporterId" value="2" required><br><br>
+
+        <label>Reporter Name:</label>
+        <input type="text" id="foundReporterName" value="Kiran" required><br><br>
+
+        <label>Reporter Email:</label>
+        <input type="email" id="foundReporterEmail" value="kiran@example.com" required><br><br>
+
+        <label>Registration Number:</label>
+        <input type="text" id="foundRegNo" value="R2" required><br><br>
+
+        <label>Item Name:</label>
+        <input type="text" id="foundName" required><br><br>
+
+        <label>Description:</label>
+        <input type="text" id="foundDescription"><br><br>
+
+        <label>Category:</label>
+        <select id="foundCategory" required>
+            <option value="OTHER">OTHER</option>
+            <option value="BOOK">BOOK</option>
+            <option value="ELECTRONICS">ELECTRONICS</option>
+            <option value="CALCULATOR">CALCULATOR</option>
+            <option value="ID_CARD">ID_CARD</option>
+            <option value="BAG">BAG</option>
+        </select><br><br>
+
+        <label>Location:</label>
+        <input type="text" id="foundLocation" required><br><br>
+
+        <label>Date and Time:</label>
+        <input type="datetime-local" id="foundDateTime" required><br><br>
+
+        <button type="submit">Report Found Item</button>
+    </form>
+
+    <p id="foundResult"></p>
+
+    <hr>
+
+    <h2>Find Matching Items</h2>
+
+    <label>Item ID:</label>
+    <input type="number" id="matchId" required>
+    <button type="button" onclick="findMatches()">Find Matches</button>
+
+    <pre id="matchResult"></pre>
+
+    <script>
+        const API = "http://localhost:8080";
+
+        function getValue(id) {
+            return document.getElementById(id).value.trim();
+        }
+
+        function getDateTime(id) {
+            const value = getValue(id);
+            return value ? value.length === 16 ? value + ":00" : value : "";
+        }
+
+        async function sendRequest(url, data, resultId) {
+            const result = document.getElementById(resultId);
+
+            try {
+                const response = await fetch(API + url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const text = await response.text();
+
+                let output;
+                try {
+                    output = JSON.stringify(JSON.parse(text), null, 2);
+                } catch {
+                    output = text;
+                }
+
+                result.textContent =
+                    "HTTP Status: " + response.status + "\n" + output;
+
+            } catch (error) {
+                result.textContent =
+                    "Could not connect to the server. Make sure Spring Boot is running on port 8080.";
+            }
+        }
+
+        document.getElementById("lostForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            sendRequest("/lost", {
+                reporterId: Number(getValue("lostReporterId")),
+                reporterName: getValue("lostReporterName"),
+                reporterEmail: getValue("lostReporterEmail"),
+                regNo: getValue("lostRegNo"),
+                name: getValue("lostName"),
+                description: getValue("lostDescription"),
+                category: getValue("lostCategory"),
+                location: getValue("lostLocation"),
+                dateTime: getDateTime("lostDateTime")
+            }, "lostResult");
+        });
+
+        document.getElementById("foundForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            sendRequest("/found", {
+                reporterId: Number(getValue("foundReporterId")),
+                reporterName: getValue("foundReporterName"),
+                reporterEmail: getValue("foundReporterEmail"),
+                regNo: getValue("foundRegNo"),
+                name: getValue("foundName"),
+                description: getValue("foundDescription"),
+                category: getValue("foundCategory"),
+                location: getValue("foundLocation"),
+                dateTime: getDateTime("foundDateTime")
+            }, "foundResult");
+        });
+
+        async function findMatches() {
+            const id = getValue("matchId");
+            const result = document.getElementById("matchResult");
+
+            if (!id) {
+                result.textContent = "Please enter an item ID.";
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    API + "/matches/" + encodeURIComponent(id)
+                );
+
+                const text = await response.text();
+
+                try {
+                    result.textContent =
+                        "HTTP Status: " + response.status + "\n" +
+                        JSON.stringify(JSON.parse(text), null, 2);
+                } catch {
+                    result.textContent = text;
+                }
+            } catch (error) {
+                result.textContent =
+                    "Could not connect to the server. Make sure Spring Boot is running.";
+            }
+        }
+    </script>
+
+</body>
+</html>
